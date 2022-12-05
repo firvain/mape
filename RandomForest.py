@@ -86,7 +86,7 @@ def walk_forward_validation(data, n_test):
 # load the dataset
 col_name = 'mape_temp'
 table_name = "openweather_addvantage_mape"
-n_in = 6
+n_in = 24
 n_out = 24
 series = get_data(source=None, table_name=table_name, col_name=col_name)
 
