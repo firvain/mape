@@ -83,11 +83,11 @@ def walk_forward_validation(data, n_test):
 
 
 # load the dataset
-col_name = 'temp'
-table_name = "openweather_direct"
+col_name = 'mape_temp'
+table_name = "accuweather_addvantage_mape"
 n_in = 24
 n_out = 24
-series = get_data(source=None, table_name=table_name, col_name=col_name)
+series = get_data(source="database", table_name=table_name, col_name=col_name)
 
 # series = fill_missing(series)
 values = series.values[:-n_out]
@@ -123,5 +123,6 @@ plt.xticks(rotation=90)
 plt.plot(series.iloc[-n_out:].index.to_numpy(), series.values[-n_out:].flatten(), label='Ground Truth', color='green')
 plt.plot(series.iloc[-n_out:].index.to_numpy(), predictions, color='blue', label='Predictions')
 plt.title(f'Variable: {col_name} - Dataset:{table_name} - MAE: {MAE}')
+plt.legend()
 plt.tight_layout()
 plt.show()
