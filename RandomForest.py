@@ -6,7 +6,7 @@ import matplotlib as mpl
 from colorama import Fore
 from numpy import asarray
 
-from Modules.Utils import get_data, set_seed
+from Modules.Utils import get_data, set_seed, fill_missing
 
 # scikit-learn modules
 from sklearn.model_selection import train_test_split  # for splitting the data
@@ -69,7 +69,6 @@ def walk_forward_validation(data, n_test):
     for i in range(len(test)):
         # split test row into input and output columns
         testX, testy = test[i, :-1], test[i, -1]
-        print(testX)
         # fit model on history and make a prediction
         yhat = random_forest_forecast(history, testX)
         # store forecast in list of predictions
@@ -84,31 +83,22 @@ def walk_forward_validation(data, n_test):
 
 
 # load the dataset
-col_name = 'mape_temp'
-table_name = "openweather_addvantage_mape"
+col_name = 'temp'
+table_name = "openweather_direct"
 n_in = 24
 n_out = 24
 series = get_data(source=None, table_name=table_name, col_name=col_name)
 
+# series = fill_missing(series)
 values = series.values[:-n_out]
 
-# transform the time series data into supervised learning
-# data = series_to_supervised(values, n_in=n_in)
-#
-# # evaluate
-# mae, y, yhat = walk_forward_validation(data, n_out)
-# print('MAE: %.3f' % mae)
-# # plot expected vs predicted
-# plt.plot(y, label='Expected')
-# plt.plot(yhat, label='Predicted')
-# plt.legend()
-# plt.show()
+
 train = series_to_supervised(values, n_in=n_in)
 
 trainX, trainy = train[:, :-1], train[:, -1]
 
 # fit model
-model = RandomForestRegressor(n_estimators=500, random_state=0)
+model = RandomForestRegressor(n_estimators=1000, random_state=0)
 model.fit(trainX, trainy)
 predictions = []
 
@@ -129,8 +119,9 @@ spl(n_in=n_in, n_out=n_out, values=values)
 
 MAE = mean_absolute_error(series.values[-n_out:].flatten(), predictions)
 plt.xticks(rotation=90)
-plt.plot(predictions, color='blue', label='Predictions')
+
 plt.plot(series.iloc[-n_out:].index.to_numpy(), series.values[-n_out:].flatten(), label='Ground Truth', color='green')
+plt.plot(series.iloc[-n_out:].index.to_numpy(), predictions, color='blue', label='Predictions')
 plt.title(f'Variable: {col_name} - Dataset:{table_name} - MAE: {MAE}')
 plt.tight_layout()
 plt.show()
